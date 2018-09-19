@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Gym Tracker</title>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
+        <link rel="stylesheet" href="/stylesheets/style.css">
+        <link rel="stylesheet" href="/stylesheets/routineeditor.css">
+    </head>
+    <body>
+        <div class="alert alert-warning" role="alert">
+            A simple warning alert with <a href="#" class="alert-link">an example link</a>. Give it a click if you like.
+        </div>
+        <div id="routine-edit-page">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="#">Gym Tracker</a>
+                <i class="nav-item nav-link fas fa-users" id="friends-btn"></i>
+                <i class="nav-item nav-link fas fa-bell" id="notifications-btn"></i>
+                <i class="nav-item nav-link fas fa-sign-out-alt" id="logout-btn"></i>
+            </nav>
+            <div id="notifications" class="nav-popup hidden"></div>
+            <div id="friends" class="nav-popup hidden"></div>
+            <form id="routine-form">
+                <div class="form-group" id="name-entry-group">
+                    <label for="routine-name-entry">Routine name:</label>
+                    <input type="text" class="form-control center-block" id="routine-name-entry" placeholder="ex: Super cool routine">
+                </div>
+                <div class="form-group workout-form-group">
+                    <input type="text" class="name-edit hidden">
+                    <h6><span class="name">Workout A</span> &ensp;<i class="fas fa-times remove-workout-btn"></i></h6> 
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 1:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Squat">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 2:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Deadlift">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                   
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 3:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Leg Press">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="8" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="12" min="1" max="999"> <br>
+                    </div>
+                    <p class="add-exercise-btn">Add exercise<p>
+                </div>
+                <div class="form-group workout-form-group">
+                    <input type="text" class="name-edit hidden">
+                    <h6><span class="name">Workout B</span> &ensp;<i class="fas fa-times remove-workout-btn"></i></h6> 
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 1:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Squat">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 2:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Deadlift">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 3:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Leg Press">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="8" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="12" min="1" max="999"> <br>
+                    </div>
+                    
+                    <p class="add-exercise-btn">Add exercise<p>
+                </div>
+
+                <div class="form-group workout-form-group">
+                    <input type="text" class="name-edit hidden">
+                    <h6><span class="name">Workout C</span> &ensp;<i class="fas fa-times remove-workout-btn"></i></h6> 
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 1:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Squat">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 2:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Deadlift">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999"> <br>
+                    </div>
+                    <div class="exercise">
+                        <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 3:</label>
+                        <input type="text" class="form-control exercise-entry" placeholder="ex: Leg Press">
+                        <input type="number" class="form-control exercise-sets-entry" placeholder="8" min="1" max="999">
+                        x
+                        <input type="number" class="form-control exercise-reps-entry" placeholder="12" min="1" max="999"> <br>
+                    </div>
+                    
+                    <p class="add-exercise-btn">Add exercise<p>
+                </div>
+
+                <p id="add-workout-btn">Add workout<p>
+                <button type="submit" class="btn btn-info" id="save-btn">Save</button>
+            </form>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+        <script src="/javascripts/navbar.js"></script>
+        <script src="/javascripts/routineeditor.js"></script>
+    </body>
+</html>

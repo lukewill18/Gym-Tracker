@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "gymapp",
+    "password": "gymapp",
+    "database": "gymapp",
+    "host": "localhost",
+    "port": "5400",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "gymapp",
+    "password": "gymapp",
+    "database": "gymapp",
+    "host": "localhost",
+    "port": "5400",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "gymapp",
+    "password": "gymapp",
+    "database": "gymapp",
+    "host": "localhost",
+    "port": "5400",
+    "dialect": "postgres"
+  }
+}

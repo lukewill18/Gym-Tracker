@@ -1,0 +1,109 @@
+#routine-edit-page {
+    width: 100%;
+    height: 100%;
+    background-color: #f4ffed;
+    overflow: auto;
+}
+
+.form-group{
+    font-size: 17px;
+}
+
+#routine-form {
+    min-width: 350px;
+    margin: 0 auto;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 0;
+}
+
+#routine-form h6 {
+    font-weight: bold;
+}
+
+#routine-form i, #routine-form p {
+    cursor: pointer;
+}
+
+#routine-form i {
+    color: red;
+    font-size: 24px;
+    display: inline-block;
+}
+
+#routine-form p {
+    color: #8c8c8c;
+    text-decoration: underline;
+    width: fit-content;
+    margin: 0;
+    font-size: 17px!important;
+}
+
+.exercise-entry {
+    width: 160px;
+    margin-bottom: 5px;
+}
+
+.exercise-sets-entry, .exercise-reps-entry {
+    width: 70px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.workout-form-group {
+    display: inline-block;
+    max-height: 650px;
+    overflow: auto;
+    vertical-align: top;
+    padding: 10px 60px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    margin-right: 10px;
+}
+
+.workout-form-group:nth-child(odd) {
+    background-color: #e2ffce;
+}
+
+.workout-form-group:nth-child(even) {
+    background-color: #BEEB9F;
+}
+
+@media screen and (max-width: 590px) {
+    #save-btn {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+    }
+    #routine-form {
+        text-align: center;
+    }
+    .workout-form-group {
+        text-align: left;
+    }
+    #routine-name-entry {
+        margin: 0 auto!important;
+        float: none;
+    }
+    #routine-form i {
+        font-size: 44px;
+    }
+}
+
+#routine-name-entry {
+    width: 350px;
+    margin: 0;
+}
+
+.workout-form-group h6 {
+    cursor: pointer;
+}
+
+.name-edit {
+    width: 130px;
+}
+
+h6 {
+    max-width: 160px;
+    word-wrap: break-word;
+}

@@ -1,0 +1,84 @@
+#routines-page {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    overflow: auto;
+}
+
+#routines-page h1 {
+    width: fit-content;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+#add-routine-btn {
+    display: inline-block;
+    width: fit-content;
+    text-decoration: underline;
+    cursor: pointer;
+    color: #8c8c8c;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.routine {
+    height: 50%;
+    min-height: 350px;
+    width: 310px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: #BEEB9F;
+}
+
+.routine-name {
+    position: absolute;
+    bottom: 3%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    word-wrap: break-word;
+
+}
+
+.edit-routine-btn {
+    width: 100px;
+    height: 30px;
+    position: absolute;
+    bottom: 15%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    background-color: white;
+}
+
+.log-workout-btn {
+    width: 150px;
+    height: 40px;
+    position: absolute;
+    bottom: 25%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    background-color: white;
+}
+
+.edit-routine-btn:hover, .log-workout-btn:hover {
+    background-color: #acacac;
+}
+
+#routines-page {
+    text-align: center;
+}
+
+#routines-box {
+    padding: 10px;
+}

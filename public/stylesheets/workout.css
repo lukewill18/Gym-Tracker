@@ -1,0 +1,32 @@
+#workout-page {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+}
+
+#btn-group-container {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.set h6 {
+    font-weight: bold;
+}
+
+.set input {
+    width: 50px;
+}
+
+#finish-btn-container {
+    text-align: center;
+}
+
+#finish-workout-btn {
+    margin-top: 10px;
+}
+
+.workout-accordion {
+    max-width: 1600px;
+    text-align: center;
+    margin: 0 auto;
+}
