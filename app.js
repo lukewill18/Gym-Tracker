@@ -7,6 +7,7 @@ var cors = require('cors');
 var session = require("client-sessions");
 
 var indexRouter = require('./routes/index');
+var homeRouter = require('./routes/home');
 var usersRouter = require('./routes/users');
 var routinesRouter = require('./routes/routines'); 
 
@@ -40,6 +41,7 @@ function requireLogin(req, res, next) {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/home', requireLogin, homeRouter);
 app.use('/routines', requireLogin, routinesRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

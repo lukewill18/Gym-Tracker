@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="/stylesheets/workout.css">
     </head>
     <body>
-        <div id="workout-page">
+        <div id="workout-page" data-id=<%=workouts[0].routineId%>>
             <nav class="navbar navbar-expand-lg navbar-light">
                 <a class="navbar-brand" href="#">Gym Tracker</a>
                 <i class="nav-item nav-link fas fa-users" id="friends-btn"></i>
@@ -21,81 +21,39 @@
             <div id="friends" class="nav-popup hidden"></div>
             <div id="btn-group-container">
                 <div class="btn-group" id="workout-select-btns">
-                    <button type="button" class="btn btn-info">Workout A</button>
-                    <button type="button" class="btn btn-info">Workout B</button>
-                    <button type="button" class="btn btn-info">Workout C</button>
+                    <%for(let i = 0; i < workouts.length; ++i) { %>
+                        <button type="button" class="btn btn-info workout-btn" data-id=<%=workouts[i].id%>><%=workouts[i].name%></button>
+                    <% } %> 
                 </div>
             </div>
-            <div class="accordion workout-accordion" id="accordion1">
-                <form class="workout-form">
-                    <div class="card">
-                        <div class="card-header" id="headingOne">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                Squat
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion1">
-                            <div class="card-body">
-                                <div class="set">
-                                    <h6>Set 1</h6>
-                                    <div class="form-group">
-                                        <label>Reps completed:</label>
-                                        <input type="number" min="0">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Weight used (lbs):</label>
-                                        <input type="number" min="0">
-                                    </div>
+            <% for(let i = 0; i < workouts.length; ++i) { %>
+            <div class="accordion workout-accordion hidden" id=<%="workout" + i.toString()%> data-id=<%=workouts[i].id%>>
+                    <% for(let j = 0; j < workouts[i].exercises.length; ++j) { %>
+                        <div class="card">
+                                <div class="card-header" id=<%="workout" + i.toString() + "heading" + j.toString()%>>
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target=<%="#exercise" + workouts[i].exercises[j].id%> aria-expanded="true" aria-controls=<%=workouts[i].exercises[j].name%>>
+                                        <%=workouts[i].exercises[j].name%>
+                                        </button>
+                                    </h5>
                                 </div>
-                                <div class="set">
-                                    <h6>Set 2</h6>
-                                    <label>Reps completed:</label>
-                                    <input type="number" min="0">
-                                    <label>Weight used (lbs):</label>
-                                    <input type="number" min="0">
-                                </div>
-                                <div class="set">
-                                    <h6>Set 3</h6>
-                                    <label>Reps completed:</label>
-                                    <input type="number" min="0">
-                                    <label>Weight used (lbs):</label>
-                                    <input type="number" min="0">
+                                <div id=<%="exercise" + workouts[i].exercises[j].id%> class="collapse" aria-labelledby=<%="workout" + i.toString() + "heading" + j.toString()%> data-parent=<%="#workout" + i.toString()%> data-id=<%=workouts[i].id%>>
+                                    <div class="card-body exercise" data-id=<%=workouts[i].exercises[j].id%>>
+                                        <% for(let k = 1; k <= workouts[i].exercises[j].sets; ++k) { %>
+                                            <div class="set">
+                                                <h6>Set <%=k%></h6>
+                                                <label>Reps completed:</label>
+                                                <input class="rep-entry" type="number" min="0" placeholder=<%=workouts[i].exercises[j].reps%>>
+                                                <label>Weight used (lbs):</label>
+                                                <input class="weight-entry" type="number" min="0">
+                                            </div>
+                                        <% } %>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header" id="headingTwo">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                Deadlift
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion1">
-                        <div class="card-body">
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                        </div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-header" id="headingThree">
-                            <h5 class="mb-0">
-                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Leg Press
-                                </button>
-                            </h5>
-                        </div>
-                        <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion1">
-                        <div class="card-body">
-                            Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
-                        </div>
-                        </div>
-                    </div>
-                </form>
+                    <% } %>
             </div>
+            <% } %>
             <div id="finish-btn-container">
                 <button class="btn btn-info" id="finish-workout-btn">Finish Workout</button>
             </div>

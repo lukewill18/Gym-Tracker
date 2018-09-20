@@ -21,16 +21,13 @@
             <div id="friends" class="nav-popup hidden"></div>
             <h1>Routines</h1>
                 <div id="routines-box">
-                    <div class="routine">
-                        <button class="btn log-workout-btn">Log Workout</button>
-                        <button class="btn edit-routine-btn">Edit</button>
-                        <p class="routine-name">Routine 1</p>
-                    </div>
-                    <div class="routine">
-                        <button class="btn log-workout-btn">Log Workout</button>
-                        <button class="btn edit-routine-btn">Edit</button>
-                        <p class="routine-name">Routine 2</p>
-                    </div>
+                    <% routines.forEach(function(routine) { %>
+                        <div class="routine" data-id=<%=routine.id%>>
+                            <button class="btn log-workout-btn">Log Workout</button>
+                            <button class="btn edit-routine-btn">Edit</button>
+                            <p class="routine-name"><%=routine.name%></p>
+                        </div>
+                    <% }); %>
                     <p id="add-routine-btn">Add routine...</p>
                 </div>
             </div>

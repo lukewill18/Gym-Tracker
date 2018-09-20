@@ -14,6 +14,22 @@ function createRoutine(name, workouts) {
     });
 }
 
+function editRoutine(id, name, workouts) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: "/routines/" + id.toString(),
+            method: "PATCH",
+            data: {name, workouts},
+            success: function(response) {
+                resolve(response);
+            },
+            error: function(thrown) {
+                reject(thrown);
+            }
+        });
+    });
+}
+
 $(function() {
     const form = $("#routine-form");
     const alert = $(".alert");
@@ -183,18 +199,31 @@ $(function() {
 
     form.on("submit", function(e) {
         e.preventDefault();
-        const name = $("#routine-name-entry").val();
-        if(name.trim() === "") {
-            alert.text("Please enter a valid routine name");
-            showAlert();
-        }
-        else {
-            const data = collectFormData();
-            createRoutine(name.trim(), JSON.stringify(data)).then(function(response) {
-                console.log(response);
-            }).catch(function(thrown) {
-                console.log(thrown);
-            });
-        }
+            const name = $("#routine-name-entry").val();
+            if(name.trim() === "") {
+                alert.text("Please enter a valid routine name");
+                showAlert();
+            }
+            else {
+                const data = collectFormData();
+                if(form.attr("data-id") === "new") {
+                    createRoutine(name.trim(), JSON.stringify(data)).then(function(response) {
+                        window.location.pathname = "/routines";
+                    }).catch(function(thrown) {
+                        alert.text(thrown.error);
+                        showAlert();
+                    });
+                }   
+                else {    
+                    editRoutine(form.attr("data-id"), name.trim(), JSON.stringify(data)).then(function(response) {
+                        window.location.pathname = "/routines";
+                    }).catch(function(thrown) {
+                        alert.text(thrown.error);
+                        showAlert();
+                    });
+                }
+            }
+        
+        
     });
 });
