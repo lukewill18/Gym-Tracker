@@ -31,7 +31,7 @@ module.exports = {
       datetime: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      } 
     }).then(function() {
       return queryInterface.addIndex(table, ["datetime"], {indexName: "logDateIndex"});
     });
