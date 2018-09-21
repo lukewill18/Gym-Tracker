@@ -26,7 +26,7 @@ router.get('/', function(req, res, next) {
     const id = req.session.id;
     const query = `SELECT "id", "name" FROM "routines"
                         WHERE "ownerId" = :id
-                        ORDER BY "createdAt" DESC`;
+                        ORDER BY "lastUsed" DESC`;
     sequelize.query(query, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
         res.render("routines", {routines: response});
     }).catch(function(thrown) {
@@ -59,20 +59,68 @@ router.get("/:id/edit", verifyAccess, function(req, res, next) {
 router.patch("/:id/", verifyAccess, function(req, res, next) {
     const id = req.params.id;
     const {name, workouts} = req.body;
-    /*
+    let data;
+    try {
+        data = JSON.parse(workouts);
+    }
+    catch(e) {
+        next(createError(HTTPStatus.BAD_REQUEST, "Could not parse data object"));
+        return;
+    }
     const deleteQuery = `DELETE FROM "workouts" WHERE "routineId" = :id`;
     sequelize.query(deleteQuery, {replacements: {id}, type: sequelize.QueryTypes.DELETE}).then(function(response) {
         const updateName = `UPDATE "routines"
-                                SET "name" = :name
+                                SET "name" = :name,
+                                    "lastUsed" = :date
                                 WHERE "id" = :id`;
-        sequelize.query(updateName, {replacements: {name, id}, type: sequelize.QueryTypes.UPDATE}).then(function(response) {
-            
+        sequelize.query(updateName, {replacements: {name, date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z'), id}, type: sequelize.QueryTypes.UPDATE}).then(function(response) {
+            sequelize.transaction(function(t) {
+                const createWorkout = `INSERT INTO "workouts" VALUES (DEFAULT, :routineId, :workout, :index) RETURNING "id"`;
+                let workoutPromises = [];
+                Object.keys(data).forEach(function(workout, index) {
+                    workoutPromises.push(sequelize.query(createWorkout, {replacements: {routineId: id, workout, index},
+                    type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(workoutResponse) {
+                        return workoutResponse[0][0].id;
+                    }));
+                });
+                return Promise.all(workoutPromises).then(function(workoutIds) {
+                    const createExercise = `INSERT INTO "exercises" VALUES (DEFAULT, :exercise)
+                                                ON CONFLICT ("name") DO UPDATE SET "name" = excluded."name"
+                                                RETURNING "id"`;
+                    let exercisePromises = [];
+                    Object.keys(data).forEach(function(workout, ind1) {
+                        const exercises = data[workout];
+                        Object.keys(exercises).forEach(function(exercise, index) {
+                            exercisePromises.push(sequelize.query(createExercise, {replacements: {exercise}, type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(exerciseResponse) {
+                                return {workId: workoutIds[ind1], id: exerciseResponse[0][0].id, index, reps: exercises[exercise].reps, sets: exercises[exercise].sets}
+                            }));
+                        });
+                    });   
+                    return Promise.all(exercisePromises).then(function(exerciseIds) {
+                        let addPromises = [];
+                        const addExercise = `INSERT INTO "workoutExercises" VALUES (:exId, :workId, :sets, :reps, :index) RETURNING *`;
+                        for(let i = 0; i < exerciseIds.length; ++i) {
+                            addPromises.push(sequelize.query(addExercise, {replacements: {exId:exerciseIds[i].id, workId: exerciseIds[i].workId, sets: parseInt(exerciseIds[i].sets),
+                            reps: parseInt(exerciseIds[i].reps), index: exerciseIds[i].index}, type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
+                                return response[0][0];
+                            }));
+                        }
+                        return Promise.all(addPromises).then(function(data) {
+                            return data;
+                        });
+                    });
+            }).then(function(response) {
+                res.json(response);
+            }).catch(function(thrown) {
+                next(createError(HTTPStatus.BAD_REQUEST, "Error changing one or more parts of request"));
+            });
         }).catch(function(thrown) {
             next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Could not update routine name"));
         });
     }).catch(function(thrown) {
         next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Could not delete existing workouts"));
-    });*/
+    });
+    });
 });
 
 router.get("/:id/workout", verifyAccess, function(req, res, next) {
@@ -94,6 +142,7 @@ router.get("/:id/workout", verifyAccess, function(req, res, next) {
 
 router.post("/:id/workout", verifyAccess, function(req, res, next) {
     const uid = req.session.id;
+    const routineId = req.params.id;
     const {workoutId, data} = req.body;
     if(workoutId === undefined || workoutId.toString().trim() === "" || data === undefined || data.toString().trim() === "") {
         next(createError(HTTPStatus.BAD_REQUEST, "Missing workout ID or workout data"));
@@ -102,21 +151,27 @@ router.post("/:id/workout", verifyAccess, function(req, res, next) {
         try {
             const obj = JSON.parse(data);
             return sequelize.transaction(function(t) {
-                const createLog = `INSERT INTO "logs" VALUES (DEFAULT, :uid, :workoutId, :date) RETURNING "id"`;
-                return sequelize.query(createLog, {replacements: {uid, workoutId, date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
-                type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
-                    let promises = [];
-                    const createSet = `INSERT INTO "sets" VALUES (DEFAULT, :logId, :exerciseId, :reps, :weight, :order)`;
-                    const exercises = Object.keys(obj);
-                    for(let i = 0; i < exercises.length; ++i) {
-                        const sets_arr = obj[exercises[i]];
-                        for(let j = 0; j < sets_arr.length; ++j) {
-                            promises.push(sequelize.query(createSet, {replacements: {logId: response[0][0].id, exerciseId: exercises[i],
-                            reps: sets_arr[j].reps, weight: sets_arr[j].weight, order: j}, type: sequelize.QueryTypes.INSERT, transaction: t}));
+                const updateLastUsed = `UPDATE "routines"
+                                            SET "lastUsed" = :date
+                                            WHERE "id" = :id`;
+                return sequelize.query(updateLastUsed, {replacements: {date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z'), id: routineId},
+                                                        type: sequelize.QueryTypes.UPDATE}).then(function() {
+                    const createLog = `INSERT INTO "logs" VALUES (DEFAULT, :uid, :workoutId, :date) RETURNING "id"`;
+                    return sequelize.query(createLog, {replacements: {uid, workoutId, date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
+                    type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
+                        let promises = [];
+                        const createSet = `INSERT INTO "sets" VALUES (DEFAULT, :logId, :exerciseId, :reps, :weight, :order)`;
+                        const exercises = Object.keys(obj);
+                        for(let i = 0; i < exercises.length; ++i) {
+                            const sets_arr = obj[exercises[i]];
+                            for(let j = 0; j < sets_arr.length; ++j) {
+                                promises.push(sequelize.query(createSet, {replacements: {logId: response[0][0].id, exerciseId: exercises[i],
+                                reps: sets_arr[j].reps, weight: sets_arr[j].weight, order: j}, type: sequelize.QueryTypes.INSERT, transaction: t}));
+                            }
                         }
-                    }
-                    return Promise.all(promises).then(function() {
-                        return response[0][0].id;
+                        return Promise.all(promises).then(function() {
+                            return response[0][0].id;
+                        });
                     });
                 });
             }).then(function(result) {
@@ -141,8 +196,8 @@ router.post("/", function(req, res, next) {
     try {
         const data = JSON.parse(workouts);
         return sequelize.transaction({autocommit: false}).then(function(t) {
-            const createRoutine = `INSERT INTO "routines" VALUES (DEFAULT, :id, :name, :createdAt) RETURNING "id"`;
-            return sequelize.query(createRoutine, {replacements: {id, name: name.trim(), createdAt: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
+            const createRoutine = `INSERT INTO "routines" VALUES (DEFAULT, :id, :name, :date) RETURNING "id"`;
+            return sequelize.query(createRoutine, {replacements: {id, name: name.trim(), date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
             type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(routineResponse) {
                 const createWorkout = `INSERT INTO "workouts" VALUES (DEFAULT, :routineId, :workout, :index) RETURNING "id"`;
                 let workoutPromises = [];
@@ -173,7 +228,6 @@ router.post("/", function(req, res, next) {
                         });
                     });    
                     return Promise.all(exercisePromises).then(function(exerciseIds) {
-                        console.log(exerciseIds);
                         let addPromises = [];
                         const addExercise = `INSERT INTO "workoutExercises" VALUES (:exId, :workId, :sets, :reps, :index) RETURNING *`;
                         for(let i = 0; i < exerciseIds.length; ++i) {
@@ -206,5 +260,21 @@ router.post("/", function(req, res, next) {
     }
 });
 
+router.get("/:id/progress", verifyAccess, function(req, res, next) {
+    const id = req.params.id;
+    const getLogs = `SELECT "w"."id", "w"."name", json_agg(json_build_object('date', "l"."datetime", 'reps', "s"."reps", 'weight', "s"."weight")) "sets"
+                        FROM (SELECT * FROM "logs" ORDER BY "datetime" ASC) "l"
+                        LEFT JOIN (SELECT * FROM "sets" ORDER BY "order" DESC) "s" ON "s"."logId" = "l"."id"
+                        INNER JOIN "workouts" "w" ON "w"."id" = "l"."workoutId"
+                        WHERE "w"."routineId" = :id
+                        GROUP BY "w"."id"
+                        ORDER BY "w"."order";`;
+    sequelize.query(getLogs, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        res.render("progress", {workouts: response})
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Error loading progress"));
+    });
+    
+});
 
 module.exports = router;

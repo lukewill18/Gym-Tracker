@@ -23,7 +23,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      createdAt: {
+      lastUsed: {
         allowNull: false,
         type: Sequelize.DATE
       }

@@ -53,7 +53,7 @@ $(function() {
             }
         }
         logWorkout($("#workout-page").attr("data-id"), currentAccordion.attr("data-id"), JSON.stringify(data)).then(function(response) {
-            console.log(response);
+            window.location.pathname = "/routines/" + $("#workout-page").attr("data-id").toString() + "/progress";
         });
     });
 

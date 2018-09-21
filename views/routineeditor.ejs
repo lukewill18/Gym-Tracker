@@ -114,11 +114,11 @@
                     <% for(let i = 0; i < workouts.length; ++i) { %>
                         <div class="form-group workout-form-group" data-id=<%=workouts[i].id%>>
                                 <input type="text" class="name-edit hidden">
-                                <h6><span class="name"><%=workouts[i].name%></span> &ensp;<i class="fas fa-times remove-workout-btn"></i></h6> 
+                                <h6><span class="name"><%-workouts[i].name%></span> &ensp;<i class="fas fa-times remove-workout-btn"></i></h6> 
                             <% for(let j = 0; j < workouts[i].exercises.length; ++j) { %>
                                 <div class="exercise" data-id=<%=workouts[i].exercises[j].id%>> 
                                     <i class="fas fa-times remove-exercise-btn"></i>&ensp;<label for="exercise-entry">Exercise 1:</label>
-                                    <input type="text" class="form-control exercise-entry" placeholder="ex: Squat" value=<%=workouts[i].exercises[j].name%>>
+                                    <input type="text" class="form-control exercise-entry" placeholder="ex: Squat" value="<%-workouts[i].exercises[j].name%>">
                                     <input type="number" class="form-control exercise-sets-entry" placeholder="3" min="1" max="999" value=<%=workouts[i].exercises[j].sets%>>
                                     x
                                     <input type="number" class="form-control exercise-reps-entry" placeholder="5" min="1" max="999" value=<%=workouts[i].exercises[j].reps%>> <br>
@@ -131,7 +131,7 @@
                 
 
                 <p id="add-workout-btn">Add workout<p>
-                <button type="submit" class="btn btn-info" id="save-btn">Save</button>
+                <button type="submit" class="btn btn-info" id="save-btn"> Save</button>
             </form>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
