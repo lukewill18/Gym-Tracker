@@ -199,18 +199,21 @@ router.post("/", function(req, res, next) {
             const createRoutine = `INSERT INTO "routines" VALUES (DEFAULT, :id, :name, :date) RETURNING "id"`;
             return sequelize.query(createRoutine, {replacements: {id, name: name.trim(), date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
             type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(routineResponse) {
-                const createWorkout = `INSERT INTO "workouts" VALUES (DEFAULT, :routineId, :workout, :index) RETURNING "id"`;
-                let workoutPromises = [];
+                let createWorkouts = `INSERT INTO "workouts" VALUES `;
                 Object.keys(data).forEach(function(workout, index) {
-                    workoutPromises.push(sequelize.query(createWorkout, {replacements: {routineId: routineResponse[0][0].id, workout, index},
+                    createWorkouts += `(DEFAULT, :routineId, '${workout}', ${index}), `;
+                });
+                createWorkouts = createWorkouts.slice(0, -2);
+                createWorkouts += ` RETURNING "id"`;
+                return sequelize.query(createWorkouts, {replacements: {routineId: routineResponse[0][0].id},
                     type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(workoutResponse) {
-                        return workoutResponse[0][0].id;
+                        return workoutResponse[0].map(function(o) {
+                            return o.id;
+                        });
                     }).catch(function(thrown) {
                         next(createError(HTTPStatus.BAD_REQUEST, "Invalid workout information"));
                         return t.rollback();
-                    }));
-                });
-                return Promise.all(workoutPromises).then(function(workoutIds) {
+                }).then(function(workoutIds) {
                     const createExercise = `INSERT INTO "exercises" VALUES (DEFAULT, :exercise)
                                                 ON CONFLICT ("name") DO UPDATE SET "name" = excluded."name"
                                                 RETURNING "id"`;
@@ -218,7 +221,6 @@ router.post("/", function(req, res, next) {
                     Object.keys(data).forEach(function(workout, ind1) {
                         const exercises = data[workout];
                         Object.keys(exercises).forEach(function(exercise, index) {
-                            
                             exercisePromises.push(sequelize.query(createExercise, {replacements: {exercise}, type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(exerciseResponse) {
                                 return {workId: workoutIds[ind1], id: exerciseResponse[0][0].id, index, reps: exercises[exercise].reps, sets: exercises[exercise].sets}
                             }).catch(function(thrown) {
@@ -228,20 +230,18 @@ router.post("/", function(req, res, next) {
                         });
                     });    
                     return Promise.all(exercisePromises).then(function(exerciseIds) {
-                        let addPromises = [];
-                        const addExercise = `INSERT INTO "workoutExercises" VALUES (:exId, :workId, :sets, :reps, :index) RETURNING *`;
+                        let addExercises = `INSERT INTO "workoutExercises" VALUES `;
                         for(let i = 0; i < exerciseIds.length; ++i) {
-                            addPromises.push(sequelize.query(addExercise, {replacements: {exId:exerciseIds[i].id, workId: exerciseIds[i].workId, sets: parseInt(exerciseIds[i].sets),
-                            reps: parseInt(exerciseIds[i].reps), index: exerciseIds[i].index}, type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
-                                return response[0][0];
-                            }).catch(function(thrown) {
-                                next(createError(HTTPStatus.BAD_REQUEST, "Invalid sets or reps information"));
-                                return t.rollback();
-                            }));
+                            addExercises += `(${exerciseIds[i].id}, ${exerciseIds[i].workId}, ${parseInt(exerciseIds[i].sets)}, ${parseInt(exerciseIds[i].reps)}, ${exerciseIds[i].index}), `;
                         }
-                        return Promise.all(addPromises).then(function(data) {
+                        addExercises = addExercises.slice(0, -2);
+                        addExercises += ` RETURNING *`;
+                        return sequelize.query(addExercises, {type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
                             t.commit();
-                            return data;
+                            return response[0][0];
+                        }).catch(function(thrown) {
+                            next(createError(HTTPStatus.BAD_REQUEST, "Invalid sets or reps information"));
+                            return t.rollback();
                         });
                     });
                 });
@@ -252,6 +252,7 @@ router.post("/", function(req, res, next) {
         }).then(function(result) {
             res.status(HTTPStatus.CREATED).json(result);
         }).catch(function(thrown) {
+            console.log(thrown);
             next(createError(HTTPStatus.BAD_REQUEST, "Error inserting one or more parts of request"));
         });
     }

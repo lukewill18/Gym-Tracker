@@ -58,4 +58,17 @@ router.post('/login', function(req, res, next) {
     }
 });
 
+router.get("/invitations", function(req, res, next) { //get all of your invitations
+    const user_id = req.session.id;
+    const query = `SELECT "i"."teamId", concat("u"."firstName", ' ', "u"."lastName") "name", "t"."name" "teamname"
+                        FROM "invitations" "i"
+                        INNER JOIN "users" "u" ON "u"."id" = "i"."inviterId"
+                        INNER JOIN "teams" "t" ON "t".id = "i"."teamId"
+                        WHERE "i"."targetId" = :id;`;
+    sequelize.query(query, {replacements: {id: user_id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        res.json(response);
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to retrieve invitations"));
+    });
+});
 module.exports = router;
