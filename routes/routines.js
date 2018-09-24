@@ -261,17 +261,34 @@ router.post("/", function(req, res, next) {
 });
 
 router.get("/:id/progress", verifyAccess, function(req, res, next) {
-    const id = req.params.id;
-    const getLogs = `SELECT "w"."id", "w"."name", json_agg(json_build_object('date', "l"."datetime", 'reps', "s"."reps", 'weight', "s"."weight")) "sets"
-                        FROM (SELECT * FROM "logs" ORDER BY "datetime" ASC) "l"
-                        LEFT JOIN (SELECT * FROM "sets" ORDER BY "order" DESC) "s" ON "s"."logId" = "l"."id"
-                        INNER JOIN "workouts" "w" ON "w"."id" = "l"."workoutId"
-                        WHERE "w"."routineId" = :id
+    const id = req.session.id;
+    const routineId = req.params.id;
+    const getLogs = `SELECT "w"."id", "w"."name", json_agg("stats".*) "stats"
+                        FROM "workouts" "w"
+                        LEFT JOIN (
+                        SELECT "l"."workoutId", "e"."name", "e"."id", json_agg(DISTINCT jsonb_build_object('date', "l"."datetime", 'reps', "s"."reps", 'weight', "s"."weight")) "sets"
+                            FROM (SELECT * FROM "logs" ORDER BY "datetime" ASC) "l"
+                            LEFT JOIN (SELECT * FROM "sets" ORDER BY "order" DESC) "s" ON "s"."logId" = "l"."id"
+                            LEFT JOIN "exercises" "e" ON "e"."id" = "s"."exerciseId"
+                            WHERE "l"."userId" = :id
+                            GROUP BY "l"."workoutId", "e"."name", "e"."id") "stats"
+                        ON "stats"."workoutId" = "w"."id"
+                        WHERE "w"."routineId" = :routineId
                         GROUP BY "w"."id"
-                        ORDER BY "w"."order";`;
-    sequelize.query(getLogs, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+                        ORDER BY "w"."order"`;
+    sequelize.query(getLogs, {replacements: {id, routineId}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        for(let i = 0; i < response.length; ++i) {
+            if(response[i].stats[0] === null)
+                continue;
+            for(let j = 0; j < response[i].stats.length; ++j) {
+                for(let k = 0; k < response[i].stats[j].sets.length; ++k) {
+                    response[i].stats[j].sets[k].date = moment(response[i].stats[j].sets[k].date).format("MMM DD");
+                }
+            }
+        }
         res.render("progress", {workouts: response})
     }).catch(function(thrown) {
+        console.log(thrown);
         next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Error loading progress"));
     });
     

@@ -27,11 +27,19 @@
                     <% } %> 
                 </div>
             </div>
-            <div id="chart-container">
-                <%for(let i = 0; i < workouts.length; ++i) { %>
-                    <canvas id=<%="progress-chart" + i.toString()%> class="chart"></canvas>
-                <% } %> 
-            </div>
+            <%for(let i = 0; i < workouts.length; ++i) { %>
+                <div class="chart-container hidden" data-id=<%=workouts[i].id%>>
+                <% if(workouts[i].stats[0] === null) { %>
+                        No workouts logged for <%=workouts[i].name%> yet
+                    </div>
+                    <%  continue; %>
+                <% }  %>
+                    <%for(let j = 0; j < workouts[i].stats.length; ++j) { %>
+                        <h3><%=workouts[i].stats[j].name%></h3>
+                        <canvas class="chart" data-id=<%=workouts[i].stats[j].id%>></canvas>
+                    <% } %> 
+                </div>
+            <% } %> 
         </div>
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
@@ -39,7 +47,9 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
         <script src="/javascripts/navbar.js"></script>
-     
+        <script>
+            const data = <%-JSON.stringify(workouts)%>
+        </script>
         <script src="/javascripts/progress.js"></script>
     </body>
 </html>

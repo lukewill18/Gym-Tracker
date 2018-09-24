@@ -27,6 +27,8 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
+    }).then(function() {
+      return queryInterface.addIndex(table, ["lastUsed"], {indexName: "lastUsedIndex"});
     });
   },
   down: (queryInterface, Sequelize) => {

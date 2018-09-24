@@ -1,49 +1,75 @@
 $(function() {
-    const charts = $(".chart");
-    for(let i = 0; i < charts.length; ++i) {
-        let ctx = charts[i].getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["Jan 1", "Jan 3", "Jan 4", "Jan 10"],
-                datasets: [{
-                    label: 'Weight (lbs)',
-                    data: [1,3,3,5],
-                    
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255,99,132,1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                elements: {
-                    line: {
-                        tension: 0
-                    }
-                },
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
+    const workouts = data;
+    console.log(workouts);
+    let current_chart = $(`.chart-container[data-id=${workouts[0].id}]`);
+    current_chart.removeClass("hidden");
+
+    $(".workout-btn").click(function() {
+        current_chart.addClass("hidden");
+        current_chart = $(`.chart-container[data-id=${$(this).attr("data-id")}]`);
+        current_chart.removeClass("hidden");
+    });
+
+    function drawCharts() {
+        for(let i = 0; i < workouts.length; ++i) {
+            if(workouts[i].stats[0] === null) 
+                continue;
+            else {
+                for(let j = 0; j < workouts[i].stats.length; ++j) {
+                    const dates = workouts[i].stats[j].sets.map(function(s) {
+                        return s.date;
+                    });
+                    const weight = workouts[i].stats[j].sets.map(function(s) {
+                        return s.weight;
+                    });
+                    const ctx = $(`.chart[data-id=${workouts[i].stats[j].id}]`)[0].getContext('2d');
+                    const chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: dates,
+                            datasets: [{
+                                backgroundColor: 'rgba(255, 255, 255, 0)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: weight,
+                            }]
+                        },
+                        
+                        options: {
+                            elements: {
+                                line: {
+                                    tension: 0
+                                }
+                            },
+                            scales: {
+                                yAxes: [{
+                                  scaleLabel: {
+                                    display: true,
+                                    labelString: 'Weight lifted (lbs)'
+                                  }
+                                }],
+                                xAxes: [{
+                                    scaleLabel: {
+                                      display: true,
+                                      labelString: 'Date'
+                                    }
+                                  }]
+                            },
+                            legend: {
+                                display: false
+                            },
+                            tooltips: {
+                                callbacks: {
+                                   label: function(tooltipItem) {
+                                          return tooltipItem.yLabel;
+                                   }
+                                }
+                            }    
                         }
-                    }]
+                    });
+
                 }
             }
-        });
+        }
     }
-    
+    drawCharts();
 });

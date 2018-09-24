@@ -15,7 +15,7 @@ router.post('/register', function(req, res, next) {
     else {
         bcrypt.hash(password, 10, function(err, hash) {
             if(err) {
-                next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Error hashing password"));
+                next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, ""));
                 return;
             }
             const query = `INSERT INTO "users" VALUES (DEFAULT, :firstName, :lastName, :hash, :email) RETURNING "id"`;
@@ -44,7 +44,7 @@ router.post('/login', function(req, res, next) {
             else {
                 bcrypt.compare(password, response[0].password, function(err, eql) {
                     if(err) {
-                        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Error decrypting password"));
+                        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, ""));
                     }
                     else if(eql) {
                         req.session.id = response[0].id;
