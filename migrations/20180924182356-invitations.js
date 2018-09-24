@@ -17,7 +17,17 @@ module.exports = {
           key: "id"
         },
         onDelete: "cascade"
+      },
+      type: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      date: {
+        type: Sequelize.DATE,
+        allowNull: false
       }
+    }).then(function() {
+      return queryInterface.addIndex(table, ["date"], {indexName: "invitationDateIndex"});
     });
   },
   down: (queryInterface, Sequelize) => {

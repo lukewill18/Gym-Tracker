@@ -58,17 +58,52 @@ router.post('/login', function(req, res, next) {
     }
 });
 
-router.get("/invitations", function(req, res, next) { //get all of your invitations
-    const user_id = req.session.id;
-    const query = `SELECT "i"."teamId", concat("u"."firstName", ' ', "u"."lastName") "name", "t"."name" "teamname"
-                        FROM "invitations" "i"
-                        INNER JOIN "users" "u" ON "u"."id" = "i"."inviterId"
-                        INNER JOIN "teams" "t" ON "t".id = "i"."teamId"
-                        WHERE "i"."targetId" = :id;`;
-    sequelize.query(query, {replacements: {id: user_id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
-        res.json(response);
-    }).catch(function(thrown) {
-        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to retrieve invitations"));
-    });
+router.get("/friends", function(req, res, next) { 
+    const id = req.session.id;
+    if(id === undefined) {
+        res.redirect("/");
+    }
+    else {
+        const query = `SELECT "ids"."friendID" "id", concat("u"."firstName", ' ', "u"."lastName") "name", "ids"."pending" FROM
+                            (SELECT "user2ID" AS "friendID", FALSE AS "pending" FROM "friendships" WHERE "user1ID" = :id
+                        UNION
+                            (SELECT "user1ID" AS "friendID", FALSE AS "pending" FROM "friendships" WHERE "user2ID" = :id)
+                        UNION
+                            (SELECT "i"."targetID" AS "friendID", TRUE AS "pending" FROM "invitations" "i"
+                                WHERE "i"."inviterID" = :id AND "i"."type" = 'friend'
+                                ORDER BY "i"."date" ASC)) "ids"
+                        INNER JOIN "users" "u" ON "u"."id" = "ids"."friendID"`;
+        sequelize.query(query, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+            res.json(response);
+        }).catch(function(thrown) {
+            next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to retrieve friends"));
+        });
+    }
 });
+
+router.get("/search/", function(req, res, next) {
+    const name = req.query.name;
+    const id = req.session.id;
+    let exclude = [];
+    if(req.query.exclude !== undefined) {
+        exclude = req.query.exclude.split(",");
+        if(id !== undefined) {
+            exclude.push(id.toString());
+        }
+    }
+    if(name === undefined)
+        next(createError(HTTPStatus.BAD_REQUEST, "Invalid name"));
+    else {
+        const query = `SELECT "id", concat("firstName", ' ', "lastName") AS name FROM "users"
+                        WHERE concat("firstName", ' ', "lastName") LIKE concat('%', :name, '%');`;
+        sequelize.query(query, {replacements: {name}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+            res.json(response.filter(function(u) {
+                return exclude.indexOf(u.id.toString()) === -1;
+            }));
+        }).catch(function(thrown) {
+            next(createError(HTTPStatus.BAD_REQUEST, "Invalid input; could not search"));
+        });
+    }
+});
+
 module.exports = router;

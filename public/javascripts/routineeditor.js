@@ -210,7 +210,7 @@ $(function() {
                     createRoutine(name.trim(), JSON.stringify(data)).then(function(response) {
                         window.location.pathname = "/routines";
                     }).catch(function(thrown) {
-                        alert.text(thrown.error);
+                        alert.text(thrown.message);
                         showAlert();
                     });
                 }   
@@ -218,7 +218,7 @@ $(function() {
                     editRoutine(form.attr("data-id"), name.trim(), JSON.stringify(data)).then(function(response) {
                         window.location.pathname = "/routines";
                     }).catch(function(thrown) {
-                        alert.text(thrown.error);
+                        alert.text(thrown.message);
                         showAlert();
                     });
                 }

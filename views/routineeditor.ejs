@@ -20,8 +20,20 @@
                 <i class="nav-item nav-link fas fa-bell" id="notifications-btn"></i>
                 <i class="nav-item nav-link fas fa-sign-out-alt" id="logout-btn"></i>
             </nav>
-            <div id="notifications" class="nav-popup hidden"></div>
-            <div id="friends" class="nav-popup hidden"></div>
+            <div id="notifications" class="nav-popup hidden">
+                <h3>Notifications</h3>
+            </div>
+            <div id="friends" class="nav-popup hidden">
+                <h3>Friends</h3>
+                <ul id="friends-list">
+                    <li class="friend">Hello</li>
+                </ul>
+                <label>Add a friend:</label>
+                <input type="text" id="friend-search" placeholder="ex: John Doe">
+                <div id="user-results" class="hidden">
+                    <div class="user-result">User 1</div>
+                </div>
+            </div>
             <form id="routine-form" data-id=<%=workouts.length === 0 ? "new" : workouts[0].routineId%>>
                 <div class="form-group" id="name-entry-group">
                     <label for="routine-name-entry">Routine name:</label>
