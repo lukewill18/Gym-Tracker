@@ -56,6 +56,38 @@ function getInvitations() {
     });
 }
 
+function ignoreInvitation(inviterID) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: "/invitations/",
+            method: "DELETE",
+            data: {inviterID},
+            success: function(response) {
+                resolve(response);
+            },
+            error: function(thrown) {
+                reject(thrown);
+            }
+        });
+    });
+}
+
+function acceptFriendRequest(inviterID) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: "/users/friend",
+            method: "POST",
+            data: {inviterID},
+            success: function(response) {
+                resolve(response);
+            },
+            error: function(thrown) {
+                reject(thrown);
+            }
+        });
+    });
+}
+
 $(function() {
     const body = $("body");
     const friendsBtn = $("#friends-btn");
@@ -136,7 +168,7 @@ $(function() {
         if(!$(e.target).is(friends) && !$(e.target).parent().is(friends) && !$(e.target).parent().parent().is(friends) && !$(e.target).is(friendsBtn)) {
             friends.addClass("hidden");
         }
-        if(!$(e.target).is(notifications) && !$(e.target).parent().is(notifications) && !$(e.target).is(notificationsBtn)) {
+        if(!$(e.target).is(notifications) && !$(e.target).parent().is(notifications) && !$(e.target).parent().parent().is(notifications) && !$(e.target).is(notificationsBtn)) {
             notifications.addClass("hidden");
         }
     });
@@ -188,11 +220,19 @@ $(function() {
     });
 
     notifications.on("click", ".accept-btn", function() {
-
+        const invite = $(this).parent();
+        if(invite.hasClass("friend-request")) {
+            acceptFriendRequest(invite.attr("data-id")).then(function() {
+                invite.remove();
+            });
+        }
     });
 
-    notifications.on("click", "ignore-btn", function() {
-
+    notifications.on("click", ".ignore-btn", function() {
+        const invite = $(this).parent();
+        ignoreInvitation(invite.attr("data-id")).then(function() {
+            invite.remove();
+        });
     });
 
 });

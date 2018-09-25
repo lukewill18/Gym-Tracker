@@ -81,6 +81,35 @@ router.get("/friends", function(req, res, next) {
     }
 });
 
+router.post("/friend", function(req, res, next) {
+    const id = req.session.id;
+    const inviterID = req.body.inviterID;
+    if(inviterID === undefined || inviterID.toString().trim() === "") {
+        next(createError(HTTPStatus.BAD_REQUEST, "Invalid inviter ID"));
+    }
+    else {
+        const checkInvite = `SELECT * FROM "invitations" 
+                                WHERE "inviterID" = :inviterID AND "targetID" = :id AND "type" = 'friend'`;
+        sequelize.query(checkInvite, {replacements: {inviterID, id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+            if(response.length === 0)
+                next(createError(HTTPStatus.BAD_REQUEST, "No friend request found"));
+            else {
+                const removeInvite = `DELETE FROM "invitations" WHERE "inviterID" = :inviterID AND "targetID" = :id AND "type" = 'friend'`;
+                sequelize.query(removeInvite, {replacements: {inviterID, id}, type: sequelize.QueryTypes.DELETE}).then(function(response) {
+                    const addFriend = `INSERT INTO "friendships" VALUES (:inviterID, :id) RETURNING *`;
+                    return sequelize.query(addFriend, {replacements: {inviterID, id}, type: sequelize.QueryTypes.INSERT});
+                }).then(function(response) {
+                    res.json(response);
+                }).catch(function(thrown) {
+                    next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to add friend"));
+                });
+            }
+        }).catch(function(thrown) {
+            next(createError(HTTPStatus.BAD_REQUEST, "Invalid inviter ID"));
+        });
+    }
+});
+
 router.get("/search/", function(req, res, next) {
     const name = req.query.name;
     const id = req.session.id;

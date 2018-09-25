@@ -38,4 +38,19 @@ router.post("/friend", function(req, res, next) {
     });
 });
 
+router.delete("/", function(req, res, next) {
+    const id = req.session.id;
+    const inviterID = req.body.inviterID;
+    if(inviterID === undefined || inviterID.toString().trim() === "") {
+        next(createError(HTTPStatus.BAD_REQUEST, "Invalid inviter id"));
+    }
+    const query = `DELETE FROM "invitations"
+                        WHERE "inviterID" = :inviterID AND "targetID" = :id`;
+    sequelize.query(query, {replacements: {inviterID, id}, type: sequelize.QueryTypes.DELETE}).then(function(response) {
+        res.json(response);
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.BAD_REQUEST, "Invalid inviter ID"));
+    });
+});
+
 module.exports = router;
