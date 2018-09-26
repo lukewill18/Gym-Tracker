@@ -26,7 +26,7 @@
 
 .routine {
     height: 50%;
-    min-height: 350px;
+    min-height: 300px;
     width: 310px;
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
     display: inline-block;
@@ -40,33 +40,30 @@
 
 .routine-name {
     position: absolute;
-    bottom: 3%;
+    top: 20%;
     left: 0;
     right: 0;
     margin: 0 auto;
     width: fit-content;
     max-width: 90%;
     word-wrap: break-word;
-
+    font-size: 30px;
 }
 
-.edit-routine-btn {
-    width: 100px;
-    height: 30px;
+.view-progress-btn {
+    color: white;
     position: absolute;
-    bottom: 15%;
-    left: 0;
-    right: 0;
-    margin: 0 auto;
-    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
-    background-color: white;
+    top: 10px;
+    right: 70px;
+    font-size: 36px;
+    cursor: pointer;
 }
 
 .log-workout-btn {
-    width: 150px;
-    height: 40px;
+    width: 80%;
+    height: 100px;
     position: absolute;
-    bottom: 25%;
+    bottom: 90px;
     left: 0;
     right: 0;
     margin: 0 auto;
@@ -74,7 +71,16 @@
     background-color: white;
 }
 
-.edit-routine-btn:hover, .log-workout-btn:hover, #add-routine-btn:hover {
+.edit-routine-btn {
+    color: #acacac;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 36px;
+}
+
+.log-workout-btn:hover, #add-routine-btn:hover {
     background-color: #acacac;
 }
 

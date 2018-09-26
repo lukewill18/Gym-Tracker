@@ -38,7 +38,61 @@
 }
 
 #contest-invite-box {
-    width: 300px;
-    height: 200px;
+    width: 90%;
+    max-height: 200px;
     box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    overflow: auto;
+    margin: 0 auto;
+}
+
+.friend-invitable {
+    width: 100%;
+    min-height: 40px;
+    word-wrap: break-word;
+    margin-bottom: 3px;
+    box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.75);
+    background-color: white;
+    text-align: center;
+    cursor: pointer;
+    padding-top: 8px;
+    user-select: none;
+}
+
+.friend-invitable:last-child {
+    margin-bottom: 0;
+}
+
+.active-invite {
+    background-color: #d6f8d6;
+}
+
+#dates {
+    width: 100%;
+    padding-right: 200px;
+    padding-left: 60px;
+    margin-bottom: 10px;
+    transition: padding-right .4s;
+}
+
+#dates input {
+    float: right;
+    width: 150px;
+}
+
+@media screen and (max-width: 525px) {
+    #dates {
+        padding-right: 150px;
+    }
+}
+
+@media screen and (max-width: 475px) {
+    #dates {
+        padding-right: 100px;
+    }
+}
+
+@media screen and (max-width: 425px) {
+    #dates {
+        padding-right: 50px;
+    }
 }

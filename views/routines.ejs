@@ -35,8 +35,9 @@
                 <div id="routines-box">
                     <% routines.forEach(function(routine) { %>
                         <div class="routine" data-id=<%=routine.id%>>
+                            <i class="fas fa-cog edit-routine-btn"></i>
                             <button class="btn log-workout-btn">Log Workout</button>
-                            <button class="btn edit-routine-btn">Edit</button>
+                            <i class="fas fa-chart-line view-progress-btn"></i>
                             <p class="routine-name"><%=routine.name%></p>
                         </div>
                     <% }); %>

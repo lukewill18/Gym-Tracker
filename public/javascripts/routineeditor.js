@@ -37,15 +37,6 @@ $(function() {
     let currentEdit = null;
     let currentName = null;
 
-    function showAlert() {
-        alert.css("opacity", "1");
-        alert.css("z-index", "2");
-        setTimeout(function() {
-            alert.css("opacity", "0");
-            alert.css("z-index", "0");
-        }, 3000);
-    }
-
     function generateWorkoutForm() {
         const num_workouts = form.find(".workout-form-group").length;
         return `<div class="form-group workout-form-group">
@@ -188,7 +179,7 @@ $(function() {
                     const reps = $(exercises[j]).find(".exercise-reps-entry").val();
                     if(exerciseName === "" || sets === "" || reps === "") {
                         alert.text("One or more fields left blank");
-                        showAlert();
+                        showAlert(alert);
                         return;
                     }
                     data[workoutName][exerciseName] = {sets, reps};
@@ -202,7 +193,7 @@ $(function() {
             const name = $("#routine-name-entry").val();
             if(name.trim() === "") {
                 alert.text("Please enter a valid routine name");
-                showAlert();
+                showAlert(alert);
             }
             else {
                 const data = collectFormData();
@@ -211,7 +202,7 @@ $(function() {
                         window.location.pathname = "/routines";
                     }).catch(function(thrown) {
                         alert.text(thrown.message);
-                        showAlert();
+                        showAlert(alert);
                     });
                 }   
                 else {    
@@ -219,7 +210,7 @@ $(function() {
                         window.location.pathname = "/routines";
                     }).catch(function(thrown) {
                         alert.text(thrown.message);
-                        showAlert();
+                        showAlert(alert);
                     });
                 }
             }

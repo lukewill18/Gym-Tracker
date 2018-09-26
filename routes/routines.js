@@ -31,8 +31,19 @@ router.get('/', function(req, res, next) {
         res.render("routines", {routines: response});
     }).catch(function(thrown) {
         next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Could not load routines"));
-    });
-    
+    }); 
+});
+
+router.get('/all', function(req, res, next) {
+    const id = req.session.id;
+    const query = `SELECT "id", "name" FROM "routines"
+                        WHERE "ownerId" = :id
+                        ORDER BY "lastUsed" DESC`;
+    sequelize.query(query, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        res.json(response);
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Could not load routines"));
+    }); 
 });
 
 router.get("/new", function(req, res, next) {

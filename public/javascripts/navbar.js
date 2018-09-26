@@ -88,6 +88,15 @@ function acceptFriendRequest(inviterID) {
     });
 }
 
+function showAlert(alert) {
+    alert.css("opacity", "1");
+    alert.css("z-index", "999999");
+    setTimeout(function() {
+        alert.css("opacity", "0");
+        alert.css("z-index", "0");
+    }, 3000);
+}
+
 $(function() {
     const body = $("body");
     const friendsBtn = $("#friends-btn");
@@ -98,7 +107,7 @@ $(function() {
     const notificationsBtn = $("#notifications-btn");
     const notifications = $("#notifications");
     let all_friends = [];
-
+    
     function movePopup(btn, popup) {
         if(body.innerWidth() - btn.offset().left >= popup.innerWidth() + 5) {
             popup.offset({top: popup.offset().top, left: btn.offset().left});

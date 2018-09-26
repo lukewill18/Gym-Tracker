@@ -38,6 +38,9 @@ router.post("/friend", function(req, res, next) {
     });
 });
 
+router.post("/contest", function(req, res, next) {
+});
+
 router.delete("/", function(req, res, next) {
     const id = req.session.id;
     const inviterID = req.body.inviterID;

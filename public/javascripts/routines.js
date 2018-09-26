@@ -10,4 +10,8 @@ $(function() {
     $("body").on("click", ".log-workout-btn", function() {
         window.location.pathname = "/routines/" + $(this).parent().attr("data-id").toString() + "/workout";
     });
+
+    $("body").on("click", ".view-progress-btn", function() {
+        window.location.pathname = "/routines/" + $(this).parent().attr("data-id").toString() + "/progress"; 
+    });
 });
