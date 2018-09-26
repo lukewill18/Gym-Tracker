@@ -56,12 +56,12 @@ function getInvitations() {
     });
 }
 
-function ignoreInvitation(inviterID) {
+function ignoreInvitation(id) {
     return new Promise(function(resolve, reject) {
         $.ajax({
             url: "/invitations/",
             method: "DELETE",
-            data: {inviterID},
+            data: {id},
             success: function(response) {
                 resolve(response);
             },
@@ -78,6 +78,22 @@ function acceptFriendRequest(inviterID) {
             url: "/users/friend",
             method: "POST",
             data: {inviterID},
+            success: function(response) {
+                resolve(response);
+            },
+            error: function(thrown) {
+                reject(thrown);
+            }
+        });
+    });
+}
+
+function joinContest(id) {
+    return new Promise(function(resolve, reject) {
+        $.ajax({
+            url: "/contests/users",
+            method: "PATCH",
+            data: {id},
             success: function(response) {
                 resolve(response);
             },
@@ -120,7 +136,6 @@ $(function() {
     $(friendsBtn).click(function() {
         friendsList.children(".friend").remove();
         getAllFriends().then(function(response) {
-            console.log(response);
             all_friends = response.map(function(f) {
                 return f.id.toString();
             });
@@ -142,11 +157,16 @@ $(function() {
     });
 
     function displayInvitations(response) {
-        notifications.children(".friend-request").remove();   
+        notifications.children(".notification").remove();   
         let temp = ``;
         for(let i = 0; i < response.length; ++i) {
             if(response[i].type === "friend") {
-                temp += `<div class="friend-request" data-id=${response[i].inviterID}>${response[i].name} wants to be your friend! 
+                temp += `<div class="friend-request notification" data-id=${response[i].id} data-inviter-id=${response[i].inviterID}>${response[i].name} wants to be your friend!<br>
+                            <button class="ignore-btn btn btn-secondary">Ignore</button><button class="accept-btn btn btn-info">Accept</button>
+                        </div>`;
+            }
+            else if(response[i].type === "contest") {
+                temp += `<div class="contest-invite notification" data-id=${response[i].id} data-contest-id=${response[i].contestID}>${response[i].name} has invited you to a contest: ${response[i].contestName}<br>
                             <button class="ignore-btn btn btn-secondary">Ignore</button><button class="accept-btn btn btn-info">Accept</button>
                         </div>`;
             }
@@ -231,7 +251,12 @@ $(function() {
     notifications.on("click", ".accept-btn", function() {
         const invite = $(this).parent();
         if(invite.hasClass("friend-request")) {
-            acceptFriendRequest(invite.attr("data-id")).then(function() {
+            acceptFriendRequest(invite.attr("data-inviter-id")).then(function() {
+                invite.remove();
+            });
+        }
+        else if(invite.hasClass("contest-invite")) {
+            joinContest(invite.attr("data-contest-id")).then(function() {
                 invite.remove();
             });
         }

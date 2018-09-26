@@ -119,10 +119,26 @@ html, body {
   background-color: lightblue;
 }
 
-.friend-request {
+.notification {
   text-align: center;
 }
 
-.friend-request .btn {
+.notification .btn {
   margin-right: 5px;
+}
+
+.log-workout-btn {
+  width: 80%;
+  height: 100px;
+  position: absolute;
+  bottom: 90px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+  background-color: white;
+}
+
+.log-workout-btn:hover {
+  background-color: #DDDDDD;
 }

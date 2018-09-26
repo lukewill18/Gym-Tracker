@@ -33,6 +33,9 @@
             </div>
             <h1>Routines</h1>
                 <div id="routines-box">
+                    <% if(routines.length === 0) { %>
+                        <h4>Nothing here yet...</h4>
+                    <% } %>
                     <% routines.forEach(function(routine) { %>
                         <div class="routine" data-id=<%=routine.id%>>
                             <i class="fas fa-cog edit-routine-btn"></i>

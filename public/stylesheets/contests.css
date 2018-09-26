@@ -2,11 +2,13 @@
     width: 100%;
     height: 100%;
     overflow: auto;
+    background-color: #fdece3;
 }
 
 #contests-page h1 {
     width: fit-content;
-    margin: 0 auto;
+    margin: 10px auto;
+    font-weight: bold;
 }
 
 #create-contest-btn {
@@ -95,4 +97,45 @@
     #dates {
         padding-right: 50px;
     }
+}
+
+.contest {
+    height: 50%;
+    min-height: 300px;
+    width: 310px;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    display: inline-block;
+    position: relative;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: #ff8a6d;
+    overflow: auto;
+}
+
+.contest-name {
+    position: absolute;
+    top: 20%;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: fit-content;
+    max-width: 90%;
+    word-wrap: break-word;
+    font-size: 30px;
+}
+
+.standings-btn {
+    cursor: pointer;
+    color: white;
+    position: absolute;
+    top: 10px;
+    right: 10px;    
+    width: 40px;
+    height: 40px;
+}
+
+h4 {
+    text-align: center;
 }

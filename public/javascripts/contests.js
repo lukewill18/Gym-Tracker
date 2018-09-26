@@ -33,7 +33,7 @@ function inviteUsersToContest(id, invited) {
         $.ajax({
             url: "/invitations/contest",
             method: "POST",
-            data: {contestID: id, invited: invited.join(",")},
+            data: {id, invited: invited.join(",")},
             success: function(response) {
                 resolve(response);
             },
@@ -66,6 +66,7 @@ $(function() {
     const modalFoot = $(".modal-footer");
     const nameEntry = modalBody.find("#contest-name-entry");
     const friendBox = modalBody.find("#contest-invite-box");
+    const contestBox = $("#contests-box");
     const dropdown = modalBody.find("#routine-dropdown");
     const progressBtn = modalBody.find("#progressovertime");
     const noProgressBtn = modalBody.find("#onetime");
@@ -73,6 +74,7 @@ $(function() {
     const startDate = dates.find("#start-date");
     const endDate = dates.find("#end-date");
     const alert = $("#alert");
+    const createBtn = $("#create-btn");
 
     $("#create-contest-btn").click(function() {
         const promises = [getAllFriends(), getAllRoutines()];
@@ -112,7 +114,7 @@ $(function() {
         dates.css("display", "none");
     });
 
-    $("#create-btn").click(function() {
+    createBtn.click(function() {
         let data = {};
         if(nameEntry.val().trim() === "") {
             alert.text("Please enter a name");
@@ -154,10 +156,23 @@ $(function() {
             data.end = end;
         }
         data.routine = dropdown.val();
-        createContest(data).then(function(id) {
-            return inviteUsersToContest(id, data.invited);
-        }).then(function(response) {
+        let created;
+        createContest(data).then(function(response) {
+            created = response;
+            return inviteUsersToContest(response.id, data.invited);
+        }).then(function() {
+            const contest = $(`<div class="contest" data-id=${created.id}>
+                                    <img src="https://www.shareicon.net/download/2015/12/30/695232_first.svg" class="standings-btn">
+                                <p class="contest-name">${created.name}</p>
+                                    <button class="btn log-workout-btn" data-id=${created.routineID}>Log Workout</button>
+                                </div>`);
+            contestBox.prepend(contest);
+            contestBox.find("h4").remove();
             modal.modal("hide");
         });
+    });
+
+    contestBox.on("click", ".log-workout-btn", function() {
+        window.location.pathname = "contests/" + $(this).parent().attr("data-id").toString() + "/workout";
     });
 });

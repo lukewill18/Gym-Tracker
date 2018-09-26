@@ -19,6 +19,15 @@ module.exports = {
         },
         onDelete: "cascade" 
       },
+      contestId: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "workouts",
+          key: "id"
+        },
+        onDelete: "cascade"
+      },
       workoutId: { 
         allowNull: false,
         type: Sequelize.INTEGER,

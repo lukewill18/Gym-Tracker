@@ -145,7 +145,7 @@ router.get("/:id/workout", verifyAccess, function(req, res, next) {
                         GROUP BY "w"."id", "r"."name", "r"."id"
                         ORDER BY "w"."order" ASC;`
     sequelize.query(query, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
-        res.render("workout", {workouts: response});
+        res.render("workout", {workouts: response, contest: false});
     }).catch(function(thrown) {
         next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Could not load workouts"));
     });
@@ -161,19 +161,22 @@ router.post("/:id/workout", verifyAccess, function(req, res, next) {
     else {
         try {
             const obj = JSON.parse(data);
+            console.log(obj);
             return sequelize.transaction(function(t) {
                 const updateLastUsed = `UPDATE "routines"
                                             SET "lastUsed" = :date
                                             WHERE "id" = :id`;
                 return sequelize.query(updateLastUsed, {replacements: {date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z'), id: routineId},
                                                         type: sequelize.QueryTypes.UPDATE}).then(function() {
-                    const createLog = `INSERT INTO "logs" VALUES (DEFAULT, :uid, :workoutId, :date) RETURNING "id"`;
-                    return sequelize.query(createLog, {replacements: {uid, workoutId, date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
+                    const createLog = `INSERT INTO "logs" VALUES (DEFAULT, :uid, :contestId, :workoutId, :date) RETURNING "id"`;
+                    return sequelize.query(createLog, {replacements: {uid, contestId: obj.contestId, workoutId, date: moment.utc(new Date()).format('YYYY-MM-DD HH:mm:ss.SSS Z')}, 
                     type: sequelize.QueryTypes.INSERT, transaction: t}).then(function(response) {
                         let promises = [];
                         const createSet = `INSERT INTO "sets" VALUES (DEFAULT, :logId, :exerciseId, :reps, :weight, :order)`;
                         const exercises = Object.keys(obj);
                         for(let i = 0; i < exercises.length; ++i) {
+                            if(exercises[i] === "contestId")
+                                continue;
                             const sets_arr = obj[exercises[i]];
                             for(let j = 0; j < sets_arr.length; ++j) {
                                 promises.push(sequelize.query(createSet, {replacements: {logId: response[0][0].id, exerciseId: exercises[i],
@@ -263,7 +266,6 @@ router.post("/", function(req, res, next) {
         }).then(function(result) {
             res.status(HTTPStatus.CREATED).json(result);
         }).catch(function(thrown) {
-            console.log(thrown);
             next(createError(HTTPStatus.BAD_REQUEST, "Error inserting one or more parts of request"));
         });
     }
@@ -300,7 +302,6 @@ router.get("/:id/progress", verifyAccess, function(req, res, next) {
         }
         res.render("progress", {workouts: response})
     }).catch(function(thrown) {
-        console.log(thrown);
         next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Error loading progress"));
     });
     

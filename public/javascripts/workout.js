@@ -52,9 +52,20 @@ $(function() {
                 }
             }
         }
+        const contestId = $("#workout-page").attr("data-contest-id");
+        if(contestId) {
+            data.contestId = contestId;
+        }
+        else {
+            data.contestId = null;
+        }
         logWorkout($("#workout-page").attr("data-id"), currentAccordion.attr("data-id"), JSON.stringify(data)).then(function(response) {
-            window.location.pathname = "/routines/" + $("#workout-page").attr("data-id").toString() + "/progress";
-        });
+            if(contestId) {
+                window.location.pathname = "/contests/" + contestId.toString() + "/standings";
+            }
+            else {
+                window.location.pathname = "/routines/" + $("#workout-page").attr("data-id").toString() + "/progress";
+            }
+        }); 
     });
-
 });

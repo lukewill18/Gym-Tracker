@@ -94,7 +94,10 @@ $(function() {
         
         const remainingWorkouts = form.find(".workout-form-group");
         for(let i = 0; i < remainingWorkouts.length; ++i) {
-            $(remainingWorkouts[i]).find(".name").text(`Workout ${String.fromCharCode(i + 65)}`);
+            const name = $(remainingWorkouts[i]).find(".name");
+            if(!name.hasClass("edited")) {
+                name.text(`Workout ${String.fromCharCode(i + 65)}`);
+            }
         }
     });
 
@@ -142,6 +145,7 @@ $(function() {
         if(e.keyCode === 13) {
             if(currentEdit.val().trim() !== "") {
                 currentName.text(currentEdit.val().trim());
+                currentName.addClass("edited");
                 hideNameEdit();
             }
             else {

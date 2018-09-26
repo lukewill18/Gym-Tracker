@@ -23,8 +23,12 @@ router.post('/register', function(req, res, next) {
                 req.session.id = response[0][0].id;
                 res.status(HTTPStatus.CREATED).json(response[0][0]);
             }).catch(function(thrown) {
-                console.log(thrown);
-                next(createError(HTTPStatus.BAD_REQUEST, "One or more invalid fields; could not register"));
+                if(thrown.name === "SequelizeUniqueConstraintError") {
+                    next(createError(HTTPStatus.CONFLICT, "This email has already been registered to an account"));
+                }
+                else {
+                    next(createError(HTTPStatus.BAD_REQUEST, "One or more invalid fields; could not register"));
+                }
             });
         });
     }
@@ -49,6 +53,9 @@ router.post('/login', function(req, res, next) {
                     else if(eql) {
                         req.session.id = response[0].id;
                         res.json({id: response[0].id});
+                    }
+                    else {
+                        next(createError(HTTPStatus.UNAUTHORIZED, "Email and password don't match"))
                     }
                 });
             }

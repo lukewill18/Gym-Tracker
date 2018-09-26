@@ -73,9 +73,14 @@
 
             <h1>Contests</h1>
                 <div id="contests-box">
+                    <% if(contests.length === 0) { %>
+                        <h4>Nothing here yet...</h4>
+                    <% } %>
                     <% contests.forEach(function(contest) { %>
                         <div class="contest" data-id=<%=contest.id%>>
+                            <img src="https://www.shareicon.net/download/2015/12/30/695232_first.svg" class="standings-btn">
                             <p class="contest-name"><%=contest.name%></p>
+                            <button class="btn log-workout-btn" data-id=<%=contest.routineID%>>Log Workout</button>
                         </div>
                     <% }); %>
                     <br>

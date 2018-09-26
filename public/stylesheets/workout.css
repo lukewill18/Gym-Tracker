@@ -9,6 +9,11 @@
     margin: 10px 0;
 }
 
+.set {
+    width: fit-content;
+    margin: 0 auto;
+}
+
 .set h6 {
     font-weight: bold;
 }
@@ -33,6 +38,19 @@
 
 #workout-page h2 {
     width: fit-content;
-    margin: 0 auto;
-    margin-bottom: 25px;
+    margin: 10px auto;
+}
+
+.set br {
+    display: none;
+}
+
+@media screen and (max-width: 404px) {
+    .set br {
+        display: block;
+    }
+    .set input {
+        float: right;
+        margin-left: 10px;
+    }
 }

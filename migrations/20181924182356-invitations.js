@@ -4,14 +4,20 @@ const table = "invitations";
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable(table, {
-      inviterID: { primaryKey: true, type: Sequelize.INTEGER,
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      inviterID: { allowNull: false, type: Sequelize.INTEGER,
         references: {
           model: "users",
           key: "id"
         },
         onDelete: "cascade" 
       },
-      targetID: { primaryKey: true, type: Sequelize.INTEGER,
+      targetID: { allowNull: false, type: Sequelize.INTEGER,
         references: {
           model: "users",
           key: "id"
@@ -21,6 +27,14 @@ module.exports = {
       type: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      contestID: {
+        type: Sequelize.INTEGER, allowNull: true, 
+          references: {
+            model: "contests",
+            key: "id"
+          },
+          onDelete: "cascade"
       },
       date: {
         type: Sequelize.DATE,
