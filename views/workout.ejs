@@ -10,7 +10,12 @@
         <link rel="stylesheet" href="/stylesheets/workout.css">
     </head>
     <body>
-        <div id="workout-page" data-id=<%=workouts[0].routineId%> data-contest-id=<%=contestId%>>
+        <% if(!contest) { %>
+            <div id="workout-page" data-id=<%=workouts[0].routineId%>>
+        <% } %>
+        <% if(contest) { %>
+            <div id="workout-page" data-id=<%=workouts[0].routineId%> data-contest-id=<%=contestId%>>
+        <% } %>
             <nav class="navbar navbar-expand-lg navbar-light">
                 <a class="navbar-brand" href="#">Gym Tracker</a>
                 <i class="nav-item nav-link fas fa-users" id="friends-btn"></i>

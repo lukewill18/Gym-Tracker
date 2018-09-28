@@ -7,10 +7,10 @@
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
         <link rel="stylesheet" href="/stylesheets/style.css">
-        <link rel="stylesheet" href="/stylesheets/home.css">
+        <link rel="stylesheet" href="/stylesheets/standings.css">
     </head>
     <body>
-        <div id="home-page">
+        <div id="standings-page">
             <nav class="navbar navbar-expand-lg navbar-light">
                 <a class="navbar-brand" href="#">Gym Tracker</a>
                 <i class="nav-item nav-link fas fa-users" id="friends-btn"></i>
@@ -31,19 +31,24 @@
                     <div class="user-result">User 1</div>
                 </div>
             </div>
-            <div class="row btn-row">
-                <div class="col-12 col-md-6 btn-col">
-                    <button type="button" class="btn btn-info btn-lg btn-block" id="routines-btn">Routines</button>
-                </div>
-                <div class="col-12 col-md-6 btn-col">
-                    <button type="button" class="btn btn-info btn-lg btn-block" id="contests-btn">Contests</button>
-                </div>
-            </div>
+            <h1>Standings</h1>
+            <% if(results.length === 0) { %>
+                <h2>Still waiting for everyone to join the contest and submit a workout. Check again later!</h2>
+            <% } %>
+            <ul id="standings-list">
+                
+            </ul>
         </div>
+        
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
         <script src="/javascripts/navbar.js"></script>
-        <script src="/javascripts/home.js"></script>
+        <script>
+            const type = '<%=type%>'
+            const data = '<%-JSON.stringify(results)%>'
+        </script>
+        <script src="/javascripts/standings.js"></script>
     </body>
 </html>

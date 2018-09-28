@@ -35,9 +35,14 @@ router.get("/", function(req, res, next) {
     });
 });
 
-function addUserToContest(id, contestId) {
+function addUserToContest(id, contestId, invitationId) {
     const query = `INSERT INTO "contestUsers" VALUES (:contestId, :id) RETURNING *`;
-    return sequelize.query(query, {replacements: {contestId, id}, type: sequelize.QueryTypes.INSERT});
+    return sequelize.query(query, {replacements: {contestId, id}, type: sequelize.QueryTypes.INSERT}).then(function() {
+        if(invitationId) {
+            return sequelize.query(`DELETE FROM "invitations" WHERE "id" = :id`, 
+                {replacements: {id: invitationId}, type: sequelize.QueryTypes.DELETE});
+        }
+    });
 }
 
 router.post("/", function(req, res, next) {
@@ -90,13 +95,14 @@ router.patch("/users", function(req, res, next) {
         next(createError(HTTPStatus.BAD_REQUEST, "Invalid contest ID"));
     }
     else {
-        const checkAccess = `SELECT * FROM "invitations" WHERE "targetID" = :id AND "type" = 'contest' AND "contestID" = :contestId`;
+        const checkAccess = `SELECT "id" FROM "invitations" WHERE "targetID" = :id AND "type" = 'contest' AND "contestID" = :contestId`;
         sequelize.query(checkAccess, {replacements: {id, contestId}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
             if(response.length === 0) {
                 next(createError(HTTPStatus.NOT_FOUND, "No invitation found for this user to join this contest"));
             }
             else {
-                addUserToContest(id, contestId).then(function(response) {
+                const invitationId = response[0].id;
+                addUserToContest(id, contestId, invitationId).then(function(response) {
                     res.json(response);
                 }).catch(function(thrown) {
                     next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to join contest"));
@@ -108,26 +114,102 @@ router.patch("/users", function(req, res, next) {
     }
 });
 
-router.get("/:id/workout", verifyAccess, function(req, res, next) {
+function loadRoutine(req, res, next) {
     const id = req.params.id;
     const query = `SELECT "r"."name" "routineName", "r"."id" "routineId", "w"."name", "w"."id", json_agg(jsonb_build_object('name', "e"."name", 'id', "e"."id", 'sets', "we"."sets", 'reps', "we"."reps")) "exercises"
-        FROM "workouts" "w"
-        INNER JOIN "routines" "r" ON "r"."id" = "w"."routineId"
-        LEFT JOIN (SELECT * FROM "workoutExercises" ORDER BY "order" ASC) "we" ON "we"."workoutId" = "w"."id"
-        LEFT JOIN "exercises" "e" ON "e"."id" = "we"."exerciseId"
-        WHERE "w"."routineId" = (SELECT "routineID" FROM "contests"
-                                    where "id" = :id)
-        GROUP BY "w"."id", "r"."name", "r"."id"
-        ORDER BY "w"."order" ASC;`
+                        FROM "workouts" "w"
+                        INNER JOIN "routines" "r" ON "r"."id" = "w"."routineId"
+                        LEFT JOIN (SELECT * FROM "workoutExercises" ORDER BY "order" ASC) "we" ON "we"."workoutId" = "w"."id"
+                        LEFT JOIN "exercises" "e" ON "e"."id" = "we"."exerciseId"
+                        WHERE "w"."routineId" = (SELECT "routineID" FROM "contests"
+                                                    where "id" = :id)
+                        GROUP BY "w"."id", "r"."name", "r"."id"
+                        ORDER BY "w"."order" ASC;`;
     sequelize.query(query, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
         res.render("workout", {workouts: response, contest: true, contestId: id})
     }).catch(function(thrown) {
-        next(createErorr(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load contest's routine"));
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load contest's routine"));
+    });
+}
+
+router.get("/:id/workout", verifyAccess, function(req, res, next) {
+    const uid = req.session.id;
+    const id = req.params.id;
+    const checkType = `SELECT "type" FROM "contests" WHERE "id" = :id`;
+    sequelize.query(checkType, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        if(response[0].type === "onetime") {
+            const checkLogged = `SELECT "id" FROM "logs" WHERE "contestId" = :id AND "userId" = :uid`;
+            sequelize.query(checkLogged, {replacements: {id, uid}, type: sequelize.QueryTypes.SELECT}).then(function(check) {
+                if(check.length > 0) {
+                    res.redirect("/contests/" + id.toString() + "/standings");
+                    return;
+                }
+                else {
+                    loadRoutine(req, res, next);
+                }
+            }).catch(function(thrown) {
+                next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load contest's routine"));
+            });
+        }
+        else {
+            const checkOver = `SELECT "start", "end" FROM "contests" WHERE "id" = :id`;
+            sequelize.query(checkOver, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(dates) {
+                console.log(dates);//HERE
+            }).catch(function(thrown) {
+                next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load contest's routine"));
+            });
+        }
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load contest's routine"));
     });
 });
 
+function displayOneTimeStandings(req, res, next) {
+    const id = req.params.id;
+    const checkComplete = `SELECT (SELECT count("id") FROM (SELECT "id" FROM "logs" WHERE "contestId" = :id) "l") >=
+                                ((SELECT count("id") FROM (SELECT "id" FROM "invitations" WHERE "contestID" = :id) "i") +
+                                (SELECT count("userID") FROM (SELECT "userID" FROM "contestUsers" WHERE "contestID" = :id) "u")) "done"`;
+    sequelize.query(checkComplete, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(done) {
+        if(done[0].done) {
+            const getLogs = `SELECT "l"."userId", concat("u"."firstName", ' ', "u"."lastName") "name", json_agg("s".*) "sets" FROM "logs" "l"
+                                LEFT JOIN "sets" "s" ON "s"."logId" = "l"."id"
+                                INNER JOIN "users" "u" ON "u"."id" = "l"."userId"
+                                WHERE "l"."contestId" = :id
+                                GROUP BY "l"."userId", "u"."firstName", "u"."lastName"`;
+            sequelize.query(getLogs, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(logs) {
+                res.render("standings", {results: logs, type: "onetime"});
+            }).catch(function(thrown) {
+                next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load standings"));
+            });
+        }
+        else {
+            res.render("standings", {results: [], type: "onetime"});
+        }
+    }).catch(function(thrown) {
+        console.log(thrown);
+
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load standings"))
+    });
+}
+
+function displayProgressStandings(req, res, next) {
+    res.render("standings", {results: [], type: "progress"});
+}
+
 router.get("/:id/standings", verifyAccess, function(req, res, next) {
-    res.json("hi");
+    const id = req.params.id;
+    const checkType = `SELECT "type" FROM "contests" WHERE "id" = :id`;
+    sequelize.query(checkType, {replacements: {id}, type: sequelize.QueryTypes.SELECT}).then(function(response) {
+        if(response[0].type === "onetime") {
+            displayOneTimeStandings(req, res, next);
+        } 
+        else { 
+            displayProgressStandings(req, res, next);
+        }
+    }).catch(function(thrown) {
+        next(createError(HTTPStatus.INTERNAL_SERVER_ERROR, "Unable to load standings"))
+    });
+//    res.render("standings");
 });
 
 module.exports = router;

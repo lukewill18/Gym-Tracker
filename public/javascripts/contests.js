@@ -71,6 +71,7 @@ $(function() {
     const progressBtn = modalBody.find("#progressovertime");
     const noProgressBtn = modalBody.find("#onetime");
     const dates = modalBody.find("#dates");
+    const workoutChoice = modalBody.find("#workout-choice");
     const startDate = dates.find("#start-date");
     const endDate = dates.find("#end-date");
     const alert = $("#alert");
@@ -108,10 +109,12 @@ $(function() {
 
     progressBtn.change(function() {
         dates.css("display", "block");
+        //workoutChoice.css("display", "none");
     });
 
     noProgressBtn.change(function() {
         dates.css("display", "none");
+        //workoutChoice.css("display", "block");
     });
 
     createBtn.click(function() {
@@ -174,5 +177,9 @@ $(function() {
 
     contestBox.on("click", ".log-workout-btn", function() {
         window.location.pathname = "contests/" + $(this).parent().attr("data-id").toString() + "/workout";
+    });
+
+    contestBox.on("click", ".standings-btn", function() {
+        window.location.pathname = "contests/" + $(this).parent().attr("data-id").toString() + "/standings";
     });
 });

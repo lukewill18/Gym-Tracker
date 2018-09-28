@@ -18,7 +18,16 @@ module.exports = {
           key: "id"
         },
         onDelete: "cascade" 
-      },
+      },/*
+      workoutID: {
+        allowNull: true,
+        type: Sequelize.INTEGER,
+        references: {
+          model: "workouts",
+          key: "id"
+        },
+        onDelete: "cascade" 
+      },*/
       name: {
         allowNull: false,
         type: Sequelize.STRING

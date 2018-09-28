@@ -1,0 +1,42 @@
+#standings-page {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: #ffecc9;
+}
+
+#standings-page h1 {
+    font-weight: bold; 
+}
+
+#standings-page h1, #standings-page h2 {
+    width: fit-content;
+    margin: 10px auto;
+}
+
+#standings-page h2 {
+    text-align: center;
+    margin-top: 100px;
+}
+
+#standings-list {
+    margin-top: 100px;
+}
+
+.standing {
+    list-style: none;
+    font-size: 24px;
+    text-align: center;
+}
+
+.standing:nth-child(1) {
+    font-size: 48px;
+}
+
+.standing:nth-child(2) {
+    font-size: 40px;
+}
+
+.standing:nth-child(3) {
+    font-size: 32px;
+}

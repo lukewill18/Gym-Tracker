@@ -139,3 +139,11 @@
 h4 {
     text-align: center;
 }
+
+.fa-calendar-alt {
+    color: white;
+    position: absolute;
+    top: 15px;
+    left: 10px;
+    font-size: 30px;
+}

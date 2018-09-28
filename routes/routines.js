@@ -151,7 +151,7 @@ router.get("/:id/workout", verifyAccess, function(req, res, next) {
     });
 });
 
-router.post("/:id/workout", verifyAccess, function(req, res, next) {
+router.post("/:id/workout", function(req, res, next) {
     const uid = req.session.id;
     const routineId = req.params.id;
     const {workoutId, data} = req.body;
@@ -191,6 +191,7 @@ router.post("/:id/workout", verifyAccess, function(req, res, next) {
             }).then(function(result) {
                 res.json({id: result});
             }).catch(function(thrown) {
+                console.log(thrown);
                 next(createError(HTTPStatus.BAD_REQUEST, "Error inserting one or more parts of request"))
             });
         }
